@@ -1,5 +1,5 @@
 {
-  description = "Setup Neovim with LazyVim, dependencies, and Bash for Toggleterm";
+  description = "Setup Neovim with LazyVim and essential dependencies";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";  # Use nixos-unstable for up-to-date packages
@@ -25,24 +25,19 @@
             pkgs.ctags                      # Code tags for navigation
             pkgs.nodejs                     # Node.js for Neovim plugins
             pkgs.bat                        # Syntax highlighting for cat
-            pkgs.the_silver_searcher        # Alternative to ripgrep
+            pkgs.silver-searcher            # Alternative to ripgrep
             pkgs.tmux                       # Terminal multiplexer
-            pkgs.bash                       # Bash shell for toggleterm support
             pkgs.xterm                      # Terminal emulator for graphical environments
-            pkgs.bashCompletion             # Bash completion for interactive shell features
           ];
 
           shellHook = ''
-            # Source bash completion for interactive use
-            if [ -f $HOME/.bash_completion ]; then
-              source $HOME/.bash_completion
+            # Ensure that the repository for LazyVim is cloned
+            if [ ! -d "$HOME/.config/nvim" ]; then
+              echo "Cloning LazyVim repository..."
+              git clone https://github.com/dfosterj/dedlazyvim "$HOME/.config/nvim" && echo "Clone successful" || echo "Clone failed"
+            else
+              echo "LazyVim repository already exists."
             fi
-
-            echo "Setting up LazyVim from GitHub..."
-            if [ ! -d ~/.config/nvim ]; then
-              git clone https://github.com/dfosterj/dedlazyvim ~/.config/nvim
-            fi
-            echo "Neovim and LazyVim are ready to use!"
           '';
         };
 
