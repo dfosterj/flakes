@@ -16,7 +16,6 @@
 
           buildInputs = [
             pkgs.neovim
-            pkgs.neovide
             pkgs.python3
             pkgs.python3Packages.pynvim
             pkgs.git
