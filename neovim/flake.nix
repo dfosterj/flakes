@@ -1,8 +1,8 @@
 {
-  description = "Setup Neovim with LazyVim and essential dependencies";
+  description = "Setup Neovim with NeoVide, LazyVim and essential dependencies";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";  # Use nixos-unstable for up-to-date packages
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -15,19 +15,20 @@
           name = "neovim-lazyvim-env";
 
           buildInputs = [
-            pkgs.neovim                     # Neovim
-            pkgs.python3                   # Python 3
-            pkgs.python3Packages.pynvim     # Python package for Neovim
-            pkgs.git                         # Git for cloning repositories
-            pkgs.ripgrep                    # Fast search tool
-            pkgs.fd                         # Fast file search
-            pkgs.fzf                        # Fuzzy file search
-            pkgs.ctags                      # Code tags for navigation
-            pkgs.nodejs                     # Node.js for Neovim plugins
-            pkgs.bat                        # Syntax highlighting for cat
-            pkgs.silver-searcher            # Alternative to ripgrep
-            pkgs.tmux                       # Terminal multiplexer
-            pkgs.xterm                      # Terminal emulator for graphical environments
+            pkgs.neovim
+            pkgs.neovide
+            pkgs.python3
+            pkgs.python3Packages.pynvim
+            pkgs.git
+            pkgs.ripgrep
+            pkgs.fd
+            pkgs.fzf
+            pkgs.ctags
+            pkgs.nodejs
+            pkgs.bat
+            pkgs.silver-searcher
+            pkgs.tmux
+            pkgs.xterm
           ];
 
           shellHook = ''
