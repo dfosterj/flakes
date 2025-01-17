@@ -16,24 +16,22 @@
 
           buildInputs = [
             pkgs.networkmanager
-            pkgs.gp-saml-gui             # Replacing gpauth with gp-saml-gui
-            pkgs.glib.networking         # Ensure TLS/SSL support
-            pkgs.gtk3                    # GTK3 libraries for the authentication window
-            pkgs.libglvnd                # OpenGL libraries for rendering
-            pkgs.mesa                    # Mesa drivers for OpenGL support
-            pkgs.openconnect             # OpenConnect package for VPN connection
+            pkgs.gp-saml-gui
+            pkgs.glib.networking
+            pkgs.gtk3
+            pkgs.libglvnd
+            pkgs.mesa
+            pkgs.openconnect
           ];
 
           shellHook = ''
             echo "Setting up VPN connection..."
 
-            # Ensure NetworkManager is running
             if ! systemctl is-active --quiet NetworkManager; then
               echo "Starting NetworkManager..."
               sudo systemctl start NetworkManager || echo "Failed to start NetworkManager"
             fi
 
-            # Check if the required arguments are provided
             if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
               echo "Missing arguments. Please provide HOST, USER, COOKIE, and OS."
               return 1
@@ -44,26 +42,22 @@
             COOKIE="$3"
             OS="$4"
 
-            echo "Connecting to VPN: $HOST with user $USER..."
+            echo "Starting authentication with gp-saml-gui..."
 
-            # Use gp-saml-gui to authenticate and retrieve the necessary info
-            gp-saml-gui --vpn "$HOST" || { echo "VPN connection to $HOST failed"; return 1; }
+            gp-saml-gui --vpn "$HOST" || { echo "gp-saml-gui authentication failed"; return 1; }
             echo "gp-saml-gui authentication complete!"
 
-            # Export the values to the environment
             export HOST USER COOKIE OS
 
-            # Run OpenConnect with the provided variables
             echo "$COOKIE" | openconnect --protocol=gp -u "$USER" --os="$OS" --passwd-on-stdin "$HOST" || { echo "OpenConnect connection failed"; return 1; }
             echo "OpenConnect VPN connection established!"
           '';
         };
 
-        # Define a default app for nix run
-        apps.default = {
+        apps.x86_64-linux.default = {
           type = "app";
-          program = "${pkgs.gp-saml-gui}/bin/gp-saml-gui";
-          args = [ "--connect" ];
+          program = "${self.devShell}/bin/bash";
+          args = ["-c" "echo 'Use the shell for interactive VPN setup'"];
         };
       }
     );
