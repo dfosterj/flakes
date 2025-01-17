@@ -1,5 +1,5 @@
 {
-  description = "Setup a VPN connection using GPAUTH";
+  description = "Setup a VPN connection using gp-saml-gui with TLS/SSL support and openconnect integration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -12,11 +12,16 @@
         pkgs = import nixpkgs { inherit system; };
       in {
         devShell = pkgs.mkShell {
-          name = "vpn-gpauth-env";
+          name = "vpn-gp-saml-gui-env";
 
           buildInputs = [
             pkgs.networkmanager
-            pkgs.gpauth
+            pkgs.gp-saml-gui             # Replacing gpauth with gp-saml-gui
+            pkgs.glib.networking         # Ensure TLS/SSL support
+            pkgs.gtk3                    # GTK3 libraries for the authentication window
+            pkgs.libglvnd                # OpenGL libraries for rendering
+            pkgs.mesa                    # Mesa drivers for OpenGL support
+            pkgs.openconnect             # OpenConnect package for VPN connection
           ];
 
           shellHook = ''
@@ -28,28 +33,37 @@
               sudo systemctl start NetworkManager || echo "Failed to start NetworkManager"
             fi
 
-            # Check if the first argument is provided
-            if [ -z "$1" ]; then
-              echo "No VPN address provided. Please provide a VPN address."
+            # Check if the required arguments are provided
+            if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -z "$4" ]; then
+              echo "Missing arguments. Please provide HOST, USER, COOKIE, and OS."
               return 1
             fi
 
-            VPN_ADDRESS="$1"
-            echo "Connecting to VPN: $VPN_ADDRESS"
+            HOST="$1"
+            USER="$2"
+            COOKIE="$3"
+            OS="$4"
 
-            # Configure VPN using gpauth
-            gpauth --init
-            gpauth add "$VPN_ADDRESS" --vpn
-            gpauth connect "$VPN_ADDRESS" || echo "VPN connection to $VPN_ADDRESS failed"
-            echo "VPN connection to $VPN_ADDRESS established!"
+            echo "Connecting to VPN: $HOST with user $USER..."
+
+            # Use gp-saml-gui to authenticate and retrieve the necessary info
+            gp-saml-gui --vpn "$HOST" || { echo "VPN connection to $HOST failed"; return 1; }
+            echo "gp-saml-gui authentication complete!"
+
+            # Export the values to the environment
+            export HOST USER COOKIE OS
+
+            # Run OpenConnect with the provided variables
+            echo "$COOKIE" | openconnect --protocol=gp -u "$USER" --os="$OS" --passwd-on-stdin "$HOST" || { echo "OpenConnect connection failed"; return 1; }
+            echo "OpenConnect VPN connection established!"
           '';
         };
 
         # Define a default app for nix run
         apps.default = {
           type = "app";
-          program = "${pkgs.gpauth}/bin/gpauth";
-          args = [ "connect" ];
+          program = "${pkgs.gp-saml-gui}/bin/gp-saml-gui";
+          args = [ "--connect" ];
         };
       }
     );
