@@ -30,13 +30,15 @@
             pkgs.libglvnd
             pkgs.mesa
             pkgs.openconnect
+            pkgs.glib-networking
           ];
 
           shellHook = ''
           echo "initializing globalprotect vpn..."
           echo "Enter VPN url:"
           read input
-          echo "You typed: $input"
+          echo "connecting to $input ..."
+          ./new-gp-saml-gui.py $input
           '';
           };
       });
