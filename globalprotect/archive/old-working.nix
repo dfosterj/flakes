@@ -23,25 +23,20 @@
           name = "vpn-gp-saml-gui-env";
 
           buildInputs = [
-            (pkgs.python311.withPackages (ps: [
-              ps.pygobject3 # pygobject package
-              ps.requests   # requests package
-            ]))
-			pkgs.gobject-introspection
-            pkgs.glib-networking
+            pkgs.networkmanager
+            pkgs.gp-saml-gui
+            # pkgs.glib.networking
             pkgs.gtk3
             pkgs.libglvnd
             pkgs.mesa
             pkgs.openconnect
+            pkgs.glib-networking
           ];
 
           shellHook = ''
-		  export GIO_MODULE_DIR=${pkgs.glib-networking}/lib/gio/modules/
           echo "initializing globalprotect vpn..."
           echo "Enter VPN url:"
           read input
-          echo "connecting to $input ..."
-          ${pkgs.python311}/bin/python3.11 ${self}/new-gp-saml-gui.py $input
           '';
           };
       });
