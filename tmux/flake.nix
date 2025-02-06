@@ -19,11 +19,11 @@
             rtpFilePath = "minimal.tmux";
 
             meta = {
-              homepage = "";
+              homepage = "https://github.com/niksingh710/minimal-tmux-status";
               description = "Minimal Status Bar Tmux";
               license = pkgs.lib.licenses.mit;
               platforms = pkgs.lib.platforms.unix;
-              maintainers = with pkgs.lib.maintainers; [ dfosterj ];
+              maintainers = with pkgs.lib.maintainers; [ niksingh710 ];
             };
           };
         });
