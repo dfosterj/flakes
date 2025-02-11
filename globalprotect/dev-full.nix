@@ -13,49 +13,32 @@
           inherit system;
           config = { allowUnfree = true; };
         };
-
-        # Helper function to create a prefix setup for environment variables
-        prefixSetup = pkgs.writeShellScriptBin "prefix-setup" ''
-          export GI_TYPELIB_PATH=${pkgs.lib.makeSearchPath "lib/girepository-1.0" [
-            pkgs.gtk3
-            pkgs.gobject-introspection
-            pkgs.webkitgtk
-          ]}
-          export GIO_MODULE_DIR=${pkgs.glib-networking}/lib/gio/modules
-          export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
-            pkgs.libglvnd
-            pkgs.mesa
-            pkgs.gtk3
-          ]}
-        '';
       in {
+        # packages = import ./pkgs/top-level.nix {
+        #   callPackage = pkgs.callPackage;
+        #   lib = pkgs.lib;
+        #   pkgs = pkgs;
+        # };
         devShell = pkgs.mkShell {
           name = "vpn-gp-saml-gui-env";
 
           buildInputs = [
-            (pkgs.python311.withPackages (ps: [
-              ps.pygobject3 # PyGObject bindings
-              ps.requests   # requests package
-            ]))
-            pkgs.gobject-introspection # GObject Introspection
-            pkgs.glib-networking       # GLib networking stack
-            pkgs.gtk3                  # GTK3 library
-            pkgs.webkitgtk             # WebKitGTK for WebKit2
-            pkgs.libglvnd              # OpenGL library
-            pkgs.mesa                  # Mesa graphics library
-            pkgs.openconnect           # OpenConnect VPN client
-            prefixSetup                # Prefix setup script
+            pkgs.networkmanager
+            pkgs.gp-saml-gui
+            # pkgs.glib.networking
+            pkgs.gtk3
+            pkgs.libglvnd
+            pkgs.mesa
+            pkgs.openconnect
+            pkgs.glib-networking
           ];
 
-          # Run the prefix setup before the shell hook
           shellHook = ''
-            ${prefixSetup}/bin/prefix-setup
-            echo "Initializing GlobalProtect VPN..."
-            echo "Enter VPN URL:"
-            read input
-            echo "Connecting to $input ..."
-            ${pkgs.python311}/bin/python3.11 ${self}/new-gp-saml-gui.py $input
+          echo "initializing globalprotect vpn..."
+          echo "Enter VPN url:"
+          read input
           '';
-        };
+          };
       });
 }
+
